@@ -78,15 +78,7 @@ insertHasql' locs hconn = do
       (Hasql.query
          (unzip3 locs)
          (Hasql.statement
-            "insert into hasql_location (select A.val,B.val,C.val from \
-               \  (select *, row_number() over () from unnest($1) as val) as A\
-               \  inner join\
-               \    (select *, row_number() over () from unnest($2) as val) as B\
-               \    on A.row_number = B.row_number\
-               \  inner join\
-               \    (select *, row_number() over () from unnest($3) as val) as C\
-               \    ON B.row_number = C.row_number\
-               \)"
+            "insert into hasql_location (select * from unnest($1,$2,$3))"
             (contramap (\(a, _, _) -> a) (Encoders.value (array' Encoders.uuid)) <>
              contramap
                (\(_, b, _) -> b)
